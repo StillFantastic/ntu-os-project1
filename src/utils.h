@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <time.h>
 #include <sys/syscall.h>
+#include <stdio.h>
+#include "scheduler.h"
 
 void AssignCPU(pid_t pid, int core);
 void SetProcessPriority(pid_t pid, int value);

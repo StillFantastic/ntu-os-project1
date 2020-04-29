@@ -1,9 +1,13 @@
 #include "scheduler.h"
 
-bool CmpByReady(struct Process a, struct Process b) {
-  if (a.ready == b.ready)
-    return a.key < b.key;
-  return a.ready < b.ready;
+int CmpByReady(const void *a, const void *b) {
+  const struct Process *p1 = (const struct Process *)a;
+  const struct Process *p2 = (const struct Process *)b;
+  if (p1->ready < p2->ready) return -1;
+  if (p1->ready > p2->ready) return 1;
+  if (p1->key < p2->key) return -1;
+  if (p1->key > p2->key) return -1;
+  return 0;
 }
 
 int main() {
@@ -20,7 +24,7 @@ int main() {
     process[i].key = i;
   }
 
-  sort(process, process + n, CmpByReady);
+  qsort((void *)process, n, sizeof(struct Process), CmpByReady);
   
   // Assign scheduler process to run on core 0
   AssignCPU(getpid(), 0);

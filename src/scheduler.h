@@ -2,8 +2,8 @@
 #define SCHEDULER_H_
 
 #include <unistd.h>
-#include <algorithm>
 #include <string.h>
+#include "policies.h"
 
 const int kMaxNameLength = 35;
 
@@ -16,6 +16,6 @@ struct Process {
   pid_t pid;
 };
 
-bool CmpByReady(Process a, Process b);
+int CmpByReady(const void *a, const void *b);
 
 #endif

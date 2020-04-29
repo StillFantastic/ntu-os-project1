@@ -1,7 +1,9 @@
 #include "utils.h"
+#define _GNU_SOURCE
+#include <sched.h>
 
 void AssignCPU(pid_t pid, int core) {
-  if (core >= CPU_SETSITE) {
+  if (core >= CPU_SETSIZE) {
     fprintf(stderr, "AssignCPU: core exceeds the number of cpu cores\n");
     exit(1);
   }
@@ -34,7 +36,7 @@ void GetTimestamp(struct timespec *ts) {
 }
 
 void PrintTimestamp(pid_t pid, struct timespec *start, struct timespec *end) {
-  syscall(334, pid, start->tv_sec, start->tv_nsec, end->tv_sec, end->tx_nsec);
+  syscall(334, pid, start->tv_sec, start->tv_nsec, end->tv_sec, end->tv_nsec);
 }
 
 void SpawnProcess(struct Process *ps) {
