@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <errno.h>
 #define _GNU_SOURCE
 
 void AssignCPU(pid_t pid, int core) {
@@ -17,6 +18,8 @@ void AssignCPU(pid_t pid, int core) {
 }
 
 void SetProcessPriority(pid_t pid, int value) {
+	if (kill(pid, 0) == -1)
+		return;
   if (value > sched_get_priority_max(SCHED_FIFO)) {
     fprintf(stderr, "SetProcessPriority: priority exceeds max allowed priority\n");
     exit(1);
@@ -25,6 +28,7 @@ void SetProcessPriority(pid_t pid, int value) {
   struct sched_param param;
   param.sched_priority = value;
   if (sched_setscheduler(pid, SCHED_FIFO, &param) != 0) {
+    printf("errno: %s\n", strerror(errno));
     fprintf(stderr, "SetProcessPriority: set scheduler failed\n");
     exit(1);
   }
@@ -35,20 +39,18 @@ void GetTimestamp(struct timespec *ts) {
 }
 
 void PrintTimestamp(pid_t pid, struct timespec *start, struct timespec *end) {
-  syscall(334, pid, start->tv_sec, start->tv_nsec, end->tv_sec, end->tv_nsec);
+  syscall(336, pid, start->tv_sec, start->tv_nsec, end->tv_sec, end->tv_nsec);
 }
 
-void SpawnProcess(struct Process *ps) {
+int SpawnProcess(struct Process *ps, int pri) {
   pid_t pid = fork();
 
   if (pid < 0) {
     fprintf(stderr, "SpawnProcess: fork error\n");
     exit(1);
   } else if (pid == 0) {
-    ps->spawned = 1;
     ps->pid = getpid();
     printf("%s %d\n", ps->name, ps->pid);
-    AssignCPU(ps->pid, 1);
     struct timespec start, end;
     GetTimestamp(&start);
     for (int i = 0; i < ps->remain; i++) {
@@ -56,5 +58,12 @@ void SpawnProcess(struct Process *ps) {
     }
     GetTimestamp(&end);
     PrintTimestamp(ps->pid, &start, &end);
+    exit(0);
+  } else {
+    ps->pid = pid;
+    AssignCPU(ps->pid, 1);
+    SetProcessPriority(ps->pid, pri);
+    ps->spawned = 1;
+    return pid;
   }
 }

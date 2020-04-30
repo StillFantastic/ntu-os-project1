@@ -21,6 +21,8 @@ int main() {
   struct Process process[n];
   for (int i = 0; i < n; i++) {
     scanf("%s%d%d", process[i].name, &process[i].ready, &process[i].remain);
+    process[i].pid = 0;
+    process[i].spawned = 0;
     process[i].key = i;
   }
 
@@ -32,6 +34,9 @@ int main() {
   SetProcessPriority(getpid(), 99);
 
   if (strcmp(policy, "FIFO") == 0) RunFIFO(process, n);
+  if (strcmp(policy, "SJF") == 0) RunSJF(process, n);
+  if (strcmp(policy, "PSJF") == 0) RunPSJF(process, n);
+  if (strcmp(policy, "RR") == 0) RunRR(process, n);
 
   return 0;
 }

@@ -1,11 +1,14 @@
 #ifndef SCHEDULER_H_
 #define SCHEDULER_H_
 
-#include <unistd.h>
-#include <string.h>
 #include "policies.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/wait.h>
 
-const int kMaxNameLength = 35;
+#define kMaxNameLength 35
 
 struct Process {
   char name[kMaxNameLength];

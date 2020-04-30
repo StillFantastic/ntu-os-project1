@@ -13,7 +13,7 @@
 
 void AssignCPU(pid_t pid, int core);
 void SetProcessPriority(pid_t pid, int value);
-void SpawnProcess(struct Process *ps);
+int SpawnProcess(struct Process *ps, int pri);
 void GetTimestamp(struct timespec *ts);
 
 #endif
