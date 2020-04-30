@@ -1,6 +1,5 @@
 #include "utils.h"
 #define _GNU_SOURCE
-#include <sched.h>
 
 void AssignCPU(pid_t pid, int core) {
   if (core >= CPU_SETSIZE) {
@@ -32,7 +31,7 @@ void SetProcessPriority(pid_t pid, int value) {
 }
 
 void GetTimestamp(struct timespec *ts) {
-  syscall(333, &ts);
+  clock_gettime(CLOCK_REALTIME, ts);
 }
 
 void PrintTimestamp(pid_t pid, struct timespec *start, struct timespec *end) {
@@ -46,13 +45,16 @@ void SpawnProcess(struct Process *ps) {
     fprintf(stderr, "SpawnProcess: fork error\n");
     exit(1);
   } else if (pid == 0) {
-    AssignCPU(getpid(), 1);
+    ps->spawned = 1;
+    ps->pid = getpid();
+    printf("%s %d\n", ps->name, ps->pid);
+    AssignCPU(ps->pid, 1);
     struct timespec start, end;
     GetTimestamp(&start);
     for (int i = 0; i < ps->remain; i++) {
       UNIT_TIME;
     }
     GetTimestamp(&end);
-    PrintTimestamp(getpid(), &start, &end);
+    PrintTimestamp(ps->pid, &start, &end);
   }
 }
